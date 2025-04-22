@@ -41,15 +41,17 @@ cmp.setup({
 
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
-lspconfig.pyright.setup({
-  capabilities = capabilities
+vim.api.nvim_create_autocmd("BufWritePre", {
+  pattern = { "*.c", "*.cpp", "*.h", "*.hpp", "*.cc", "*.cxx", "*.hh", "*.hxx" },
+  callback = function()
+    vim.cmd("silent! write")
+    vim.cmd("silent! !clang-format -i %")
+    vim.cmd("silent! edit!")
+  end,
 })
 
 lspconfig.clangd.setup({
-  capabilities = capabilities,
-  on_attach = function(client, bufnr)
-    vim.api.nvim_buf_set_keymap(bufnr, 'n', '<Leader>f', ':lua vim.lsp.buf.formatting_sync()<CR>', { noremap = true, silent = true })
-  end
+  capabilities = capabilities
 })
 
 -- lspconfig.lua_ls.setup({ capabilities = capabilities })
