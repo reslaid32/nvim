@@ -1,6 +1,8 @@
 local lspconfig = require('lspconfig')
 local gitsigns = require('gitsigns')
-local cmp = require'cmp'
+local cmp = require('cmp')
+local treesitter = require('nvim-treesitter.configs')
+local tree = require('nvim-tree')
 
 vim.cmd("highlight Normal guibg=#0d0d0d guifg=#d0d0d0")
 vim.cmd("highlight Comment guifg=#555555 gui=italic")
@@ -68,5 +70,32 @@ gitsigns.setup {
   numhl      = false,
   linehl     = false,
 }
+
+-- tree-sitter
+treesitter.setup {
+  ensure_installed = { "c", "cpp" },
+  highlight = { enable = true },
+}
+
+tree.setup()
+
+-- toggle tree
+vim.keymap.set("n", "<C-b>", ":NvimTreeToggle<CR>")
+
+-- toggle tree focus
+local last_win = nil
+vim.keymap.set("n", "<C-n>", function()
+  local view = require("nvim-tree.view")
+  if view.is_visible() and vim.api.nvim_get_current_win() == view.get_winnr() then
+    -- go back
+    if last_win and vim.api.nvim_win_is_valid(last_win) then
+      vim.api.nvim_set_current_win(last_win)
+    end
+  else
+    -- save current window and go to tree
+    last_win = vim.api.nvim_get_current_win()
+    vim.cmd("NvimTreeFocus")
+  end
+end)
 
 vim.cmd("set termguicolors")
